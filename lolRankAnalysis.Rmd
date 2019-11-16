@@ -18,20 +18,20 @@ library(tidyverse)
 ### Loading in all data
 ```{r}
 # Load ranked data
-GoldPlus <- read.csv("goldPlus.csv", header=FALSE, encoding="UTF-8")
-Silver <- read.csv("silver.csv", header=FALSE, encoding="UTF-8")
-Bronze <- read.csv("bronze.csv", header=FALSE, encoding="UTF-8")
-Iron <- read.csv("iron.csv", header=FALSE, encoding="UTF-8")
+GoldPlus <- read.csv("goldPlus.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+Silver <- read.csv("silver.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+Bronze <- read.csv("bronze.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+Iron <- read.csv("iron.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
 
 # Load top account IDs
-ChallengerIDs <- read.csv("challengerIDs.csv", header=FALSE, encoding="UTF-8")
-GrandmasterIDs <- read.csv("grandmasterIDs.csv", header=FALSE, encoding="UTF-8")
-MasterIDs <- read.csv("masterIDs.csv", header=FALSE, encoding="UTF-8")
+ChallengerIDs <- read.csv("challengerIDs.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+GrandmasterIDs <- read.csv("grandmasterIDs.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+MasterIDs <- read.csv("masterIDs.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
 
 # Load top account recent matches
-ChallengerMatches <- read.csv("challengerMatches.csv", header=FALSE, encoding="UTF-8")
-GrandmasterMatches <- read.csv("grandmasterMatches.csv", header=FALSE, encoding="UTF-8")
-MasterMatches <- read.csv("masterMatches.csv", header=FALSE, encoding="UTF-8")
+ChallengerMatches <- read.csv("challengerMatches.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+GrandmasterMatches <- read.csv("grandmasterMatches.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
+MasterMatches <- read.csv("masterMatches.csv", header=FALSE, encoding="UTF-8", stringsAsFactors=FALSE)
 ```
 
 ### Assigning variable names
@@ -77,9 +77,14 @@ ChallengerIDs %>% head()
 GrandmasterIDs %>% head()
 MasterIDs %>% head()
 ```
+In these 3 datasets, each case is a player having an internal summonerID, accountID, and account level.
 
-
-
+```{r}
+ChallengerMatches %>% head()
+GrandmasterMatches %>% head()
+MasterMatches %>% head()
+```
+In these 3 datasets, each case is a game played with an internal accountID for a certain player and the role and lane played.
 
 
 
