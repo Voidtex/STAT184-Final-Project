@@ -4,7 +4,8 @@ author: Perry Tsang
 output: html_notebook
 ---
 
-### Front matter
+## Front matter
+### Clearing environment and loading packages
 ```{r}
 # Clear environment
 rm(list=ls())
@@ -12,7 +13,10 @@ rm(list=ls())
 # Load packages
 library(mosaic)
 library(tidyverse)
+```
 
+### Loading in all data
+```{r}
 # Load ranked data
 GoldPlus <- read.csv("goldPlus.csv", header=FALSE, encoding="UTF-8")
 Silver <- read.csv("silver.csv", header=FALSE, encoding="UTF-8")
@@ -31,13 +35,13 @@ MasterMatches <- read.csv("masterMatches.csv", header=FALSE, encoding="UTF-8")
 ```
 
 ### Assigning variable names
-Because the raw data does not have any headers, they are added here before analysis
+Because the raw data does not have any headers (variable names), they are added here before analysis based on documentation
 ```{r}
 # All ranked data have the same variables
-names(GoldPlus) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
-names(Silver) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
-names(Bronze) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
-names(Iron) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+names(GoldPlus) <- c("summonerID", "tier", "division", "wins", "losses", "veteran")
+names(Silver) <- c("summonerID", "tier", "division", "wins", "losses", "veteran")
+names(Bronze) <- c("summonerID", "tier", "division", "wins", "losses", "veteran")
+names(Iron) <- c("summonerID", "tier", "division", "wins", "losses", "veteran")
 
 # All top account IDs have the same variables
 names(ChallengerIDs) <- c("summonerID", "accountID", "level")
@@ -50,4 +54,7 @@ names(GrandmasterMatches) <- c("accountID", "role", "lane")
 names(MasterMatches) <- c("accountID", "role", "lane")
 ```
 
-### Introduction to League of Legends Ranking System
+## Introduction to League of Legends Ranking System
+In League of Legends, one of the main modes is the 5v5 ranked system, with players being matched with other players to make teams of 5 to play against another team. There are 2 such ranked systems: Solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either my himself or with one other person in a similar skill range. Flex queue on the other hand allows players of similar skill level to play as a team of any size, except 4. The focus of this analysis will be on solo queue, as it best shows the individual skill level of each player.
+
+As players win or lose games, they gain points in which they use to go up or down in the ranks. The ranks are split into 9 tiers, from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions, from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes.
