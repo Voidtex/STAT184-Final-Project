@@ -14,25 +14,40 @@ library(mosaic)
 library(tidyverse)
 
 # Load ranked data
-goldPlus <- read.csv("goldPlus.csv", header=FALSE, encoding="UTF-8")
-silver <- read.csv("silver.csv", header=FALSE, encoding="UTF-8")
-bronze <- read.csv("bronze.csv", header=FALSE, encoding="UTF-8")
-iron <- read.csv("iron.csv", header=FALSE, encoding="UTF-8")
+GoldPlus <- read.csv("goldPlus.csv", header=FALSE, encoding="UTF-8")
+Silver <- read.csv("silver.csv", header=FALSE, encoding="UTF-8")
+Bronze <- read.csv("bronze.csv", header=FALSE, encoding="UTF-8")
+Iron <- read.csv("iron.csv", header=FALSE, encoding="UTF-8")
 
 # Load top account IDs
-challengerIDs <- read.csv("challengerIDs.csv", header=FALSE, encoding="UTF-8")
-grandmasterIDs <- read.csv("grandmasterIDs.csv", header=FALSE, encoding="UTF-8")
-masterIDs <- read.csv("masterIDs.csv", header=FALSE, encoding="UTF-8")
+ChallengerIDs <- read.csv("challengerIDs.csv", header=FALSE, encoding="UTF-8")
+GrandmasterIDs <- read.csv("grandmasterIDs.csv", header=FALSE, encoding="UTF-8")
+MasterIDs <- read.csv("masterIDs.csv", header=FALSE, encoding="UTF-8")
 
 # Load top account recent matches
-challengerMatches <- read.csv("challengerMatches.csv", header=FALSE, encoding="UTF-8")
-grandmasterMatches <- read.csv("grandmasterMatches.csv", header=FALSE, encoding="UTF-8")
-masterMatches <- read.csv("masterMatches.csv", header=FALSE, encoding="UTF-8")
+ChallengerMatches <- read.csv("challengerMatches.csv", header=FALSE, encoding="UTF-8")
+GrandmasterMatches <- read.csv("grandmasterMatches.csv", header=FALSE, encoding="UTF-8")
+MasterMatches <- read.csv("masterMatches.csv", header=FALSE, encoding="UTF-8")
 ```
 
-### Assigning names
+### Assigning variable names
+Because the raw data does not have any headers, they are added here before analysis
 ```{r}
-names(goldPlus) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+# All ranked data have the same variables
+names(GoldPlus) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+names(Silver) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+names(Bronze) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+names(Iron) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+
+# All top account IDs have the same variables
+names(ChallengerIDs) <- c("summonerID", "accountID", "level")
+names(GrandmasterIDs) <- c("summonerID", "accountID", "level")
+names(MasterIDs) <- c("summonerID", "accountID", "level")
+
+# All top account recent games have the same variables
+names(ChallengerMatches) <- c("accountID", "role", "lane")
+names(GrandmasterMatches) <- c("accountID", "role", "lane")
+names(MasterMatches) <- c("accountID", "role", "lane")
 ```
 
 ### Introduction to League of Legends Ranking System
