@@ -1,0 +1,38 @@
+---
+title: League of Legends Ranked Analysis
+author: Perry Tsang
+output: html_notebook
+---
+
+### Front matter
+```{r}
+# Clear environment
+rm(list=ls())
+
+# Load packages
+library(mosaic)
+library(tidyverse)
+
+# Load ranked data
+goldPlus <- read.csv("goldPlus.csv", header=FALSE, encoding="UTF-8")
+silver <- read.csv("silver.csv", header=FALSE, encoding="UTF-8")
+bronze <- read.csv("bronze.csv", header=FALSE, encoding="UTF-8")
+iron <- read.csv("iron.csv", header=FALSE, encoding="UTF-8")
+
+# Load top account IDs
+challengerIDs <- read.csv("challengerIDs.csv", header=FALSE, encoding="UTF-8")
+grandmasterIDs <- read.csv("grandmasterIDs.csv", header=FALSE, encoding="UTF-8")
+masterIDs <- read.csv("masterIDs.csv", header=FALSE, encoding="UTF-8")
+
+# Load top account recent matches
+challengerMatches <- read.csv("challengerMatches.csv", header=FALSE, encoding="UTF-8")
+grandmasterMatches <- read.csv("grandmasterMatches.csv", header=FALSE, encoding="UTF-8")
+masterMatches <- read.csv("masterMatches.csv", header=FALSE, encoding="UTF-8")
+```
+
+### Assigning names
+```{r}
+names(goldPlus) <- c("summonerID", "division", "tier", "wins", "losses", "veteran")
+```
+
+### Introduction to League of Legends Ranking System
