@@ -55,14 +55,14 @@ names(MasterMatches) <- c("accountID", "role", "lane")
 ```
 
 ## Introduction to League of Legends Ranking System
-In League of Legends, one of the main modes is the 5v5 ranked system, with players being matched with other players to make teams of 5 to play against another team. There are 2 such ranked systems: Solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either my himself or with one other person in a similar skill range. Flex queue on the other hand allows players of similar skill level to play as a team of any size, except 4. The focus of this analysis will be on solo queue, as it best shows the individual skill level of each player.
+In League of Legends, one of the main modes is the 5v5 ranked system, with players being matched with other players to make teams of 5 to play against other teams in the same server region. There are 2 such ranked systems: Solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either by himself or group up with one other person in a similar skill range before being matched with a team. Flex queue on the other hand allows players to play by themselves or group up to create teams of sizes 2, 3, or 5 with other players of similar skill level before being matched with a team. The focus of this analysis will be on north american (NA) solo queue players.
 
-As players win or lose games, they gain points in which they use to go up or down in the ranks. The ranks are split into 9 tiers, from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions, from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes.
+As players win or lose games, they gain points in which they use to go up or down in the ranks. The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes.
 
 ## Research question and initial analysis
 Because each tier represents a skill level and requires many games to climb the ranked ladder, I want to see how the number of games played increase as players move towards the top, as well as how their win rate move. In addition, I want to compare some basic stats of the 3 top tiers and see which role is the most common.
 
-### Initial analysis of raw data
+## Initial analysis of raw data
 ```{r}
 # Analysis of ranked data
 GoldPlus %>% head()
@@ -84,8 +84,21 @@ ChallengerMatches %>% head()
 GrandmasterMatches %>% head()
 MasterMatches %>% head()
 ```
-In these 3 datasets, each case is a game played with an internal accountID for a certain player and the role and lane played.
+In these 3 datasets, each case is a game played with an internal accountID for a certain player and the role and lane played. From the documentation, these are the last 100 or so games played by each player.
 
+Note that, as the dataframe names suggest, the IDs and last matches dataframes only refer to Master tier players and above.
 
+## Combining like datasets
+Because a lot of data is split among different files and therefore read in in different dataframes, they should be combined before starting analysis
+```{r}
+AllRanks <- rbind(GoldPlus, Silver, Bronze, Iron)
+AllTopTierIDs <- rbind(ChallengerIDs, GrandmasterIDs, MasterIDs)
+AllTopTierMatches <- rbind(ChallengerMatches, GrandmasterMatches, MasterMatches)
+
+AllRanks %>% nrow()
+AllTopTierIDs %>% nrow()
+AllTopTierMatches %>% nrow()
+```
+After combining datasets, we can see that there are 1,872,617 ranked players in NA, 2346 of which are in Master tier or above. Of those players, there were 234,394 games recorded.
 
 
