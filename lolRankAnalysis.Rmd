@@ -176,11 +176,18 @@ GameData %>%
 From these boxplots, we can see that the interquartile range of total games played gets smaller we go down the tiers. However, the total games played by a single player is highest in the Gold tier.
 
 ```{r fig.width=10}
-GameData %>%
+MeanWinRate <- 
+  GameData %>%
   group_by(tier) %>%
-  summarise(meanWR=mean(winRate)) %>%
-  ggplot(aes(x=tier, y=meanWR, group=1)) +
-  geom_line()
-```
+  summarise(meanWR=mean(winRate))
 
+GameData %>%
+  group_by(tier, division) %>%
+  summarise(meanWR=mean(winRate)) %>%
+  ggplot(aes(x=tier, y=meanWR)) +
+  geom_point(aes(color=division)) +
+  geom_line(data=MeanWinRate, aes(x=tier, y=meanWR, group=1))
+```
+In this graph, the line is the win rate of the tier while the points are win rates of each division within a tier.
+In general, a player's mean win rate increases as they move up tiers. Within a tier, the higher divisions generally have higher win rates. The exception to this is division III and IV in Platinum and Gold. As tiers Master and above effectively are only one tier, the division mean win rate is the mean win rate of the tier.
 
