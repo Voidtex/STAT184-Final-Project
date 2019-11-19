@@ -57,10 +57,10 @@ names(MasterMatches) <- c("accountID", "role", "lane")
 ## Introduction to League of Legends Ranking System
 In League of Legends, one of the main modes is the 5v5 ranked system, with players being matched with other players to make teams of 5 to play against other teams in the same server region. There are 2 such ranked systems: Solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either by himself or group up with one other person in a similar skill range before being matched with a team. Flex queue on the other hand allows players to play by themselves or group up to create teams of sizes 2, 3, or 5 with other players of similar skill level before being matched with a team. The focus of this analysis will be on north american (NA) solo queue players.
 
-As players win or lose games, they gain points in which they use to go up or down in the ranks. The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes.
+As players win or lose games, they gain points in which they use to go up or down in the ranks. The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes. It should also be noted that those 3 tiers are designed with a cap that limits the number of players allowed to be in it at any time.
 
 ## Research question and initial analysis
-Because each tier represents a skill level and requires many games to climb the ranked ladder, I want to see how the number of games played increase as players move towards the top, as well as how their win rate move. In addition, I want to compare some basic stats of the 3 top tiers and see which role is the most common.
+Because each tier represents a skill level and requires many games to climb the ranked ladder, I want to see the distribution of players, how the number of games played increase as players move towards the top, as well as how their win rates compare. In addition, I want to compare some basic stats of the 3 top tiers and see which role is the most common.
 
 ## Initial analysis of raw data
 ```{r}
@@ -88,17 +88,62 @@ In these 3 datasets, each case is a game played with an internal accountID for a
 
 Note that, as the dataframe names suggest, the IDs and last matches dataframes only refer to Master tier players and above.
 
-## Combining like datasets
-Because a lot of data is split among different files and therefore read in in different dataframes, they should be combined before starting analysis
+## Combining like datasets and last minute editing
+Because a lot of data is split among different files and therefore read in in different dataframes, they should be combined before starting analysis. Some final changes to make analysis easier will also be done here
 ```{r}
+# Combining like datasets into one
 AllRanks <- rbind(GoldPlus, Silver, Bronze, Iron)
 AllTopTierIDs <- rbind(ChallengerIDs, GrandmasterIDs, MasterIDs)
 AllTopTierMatches <- rbind(ChallengerMatches, GrandmasterMatches, MasterMatches)
 
-AllRanks %>% nrow()
-AllTopTierIDs %>% nrow()
-AllTopTierMatches %>% nrow()
+# Removing blank entries in AllRanks
+AllRanks <-
+  AllRanks %>%
+  filter(summonerID != "")
+
+# Setting tiers as a factor so sorting will be in order or rank and not alphabetical
+tiers <- c("CHALLENGER", "GRANDMASTER", "MASTER", "DIAMOND", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON")
+AllRanks <- 
+  AllRanks %>%
+  mutate(tier=factor(tier, levels=tiers))
 ```
-After combining datasets, we can see that there are 1,872,617 ranked players in NA, 2346 of which are in Master tier or above. Of those players, there were 234,394 games recorded.
+
+## Basic rank distriutions
+### Table visualization
+```{r}
+AllRanks %>%
+  group_by(tier) %>% 
+  summarise(count=n()) %>%
+  arrange(desc(count))
+
+AllRanks %>%
+  group_by(tier, division) %>%
+  summarise(count=n()) %>%
+  arrange(desc(count))
+```
+From these two tables, we can see that the *tier* with the most of players is Silver, while the *division* with the most players is Gold IV. It should also not be surprising that the number of players in Master, Grandmaster, and Challenger have the least since they have a cap on players by design.
+
+### Graphic visualizations of rank distribution
+```{r fig.width=10}
+AllRanks %>%
+  group_by(tier) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x=tier, y=count)) +
+  geom_col()
+```
+From this graph, we can see that the distribution of players is distributed fairly normally with the majority of players being in Gold or Silver. The highest tiers are essentially a rounding error in comparison to the rest of the playerbase.
+
+Ignoring the highest tiers, I want to see how the rest of the rest of the playerbase is distributed when divisions are also taken into account.
+```{r fig.height=5, fig.width=8}
+AllRanks %>%
+  filter(tier!="CHALLENGER" & tier!="GRANDMASTER" & tier!="MASTER") %>%
+  group_by(tier, division) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x=division, y=count)) +
+  geom_col() +
+  facet_wrap(tier~., nrow=1)
+```
+Given this graph, we can see that Gold IV is by far the highest division (as confirmed earlier) and that normal distribution is maintained fairly well, with more players in division IV of Diamond, Platinum, and Gold and division I of Bronze and Iron. The only exception is Silver, with a fairly even distribution of players among its divisions.
+
 
 
