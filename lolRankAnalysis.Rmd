@@ -109,7 +109,7 @@ AllRanks <-
 ```
 
 ## Basic rank distriutions
-### Table visualization
+### Most populated tier and division
 ```{r}
 AllRanks %>%
   group_by(tier) %>% 
@@ -143,7 +143,44 @@ AllRanks %>%
   geom_col() +
   facet_wrap(tier~., nrow=1)
 ```
-Given this graph, we can see that Gold IV is by far the highest division (as confirmed earlier) and that normal distribution is maintained fairly well, with more players in division IV of Diamond, Platinum, and Gold and division I of Bronze and Iron. The only exception is Silver, with a fairly even distribution of players among its divisions.
+Given this graph, we can see that Gold IV is by far the most populated division (as confirmed earlier) and that the normal distribution is maintained fairly well, with more players in division IV of Diamond, Platinum, and Gold and division I of Bronze and Iron. The only exception is Silver, with a fairly even distribution of players among its divisions.
 
+## Diving into the game statistics
+### Mean games played and win rate
+```{r}
+# Calculates total games played and win rate for each player
+GameData <-
+  AllRanks %>%
+  mutate(totalGames=wins+losses, winRate=wins/totalGames) %>%
+  select(tier, division, wins, losses, totalGames, winRate)
+
+
+GameData %>%
+  group_by(tier, division) %>%
+  summarise(meanGames=mean(totalGames)) %>%
+  arrange(desc(meanGames))
+
+GameData %>%
+  group_by(tier, division) %>%
+  summarise(meanWR=mean(winRate)) %>%
+  arrange(desc(meanWR))
+```
+From this table, we can see that the higher rank a player goes, the more games they play on average, especially in the highest tiers due to the performance based system at that level. The average win rate for each division also generally goes up the higher rank a player goes. This is fairly intuitive as a player must consistently win more games in order to climb up the ranks.
+
+### Plotting games played and win rates
+```{r fig.width=10}
+GameData %>% 
+  ggplot(aes(x=tier, y=totalGames)) +
+  geom_boxplot()
+```
+From these boxplots, we can see that the interquartile range of total games played gets smaller we go down the tiers. However, the total games played by a single player is highest in the Gold tier.
+
+```{r fig.width=10}
+GameData %>%
+  group_by(tier) %>%
+  summarise(meanWR=mean(winRate)) %>%
+  ggplot(aes(x=tier, y=meanWR, group=1)) +
+  geom_line()
+```
 
 
