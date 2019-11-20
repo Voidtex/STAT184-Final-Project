@@ -198,19 +198,26 @@ In League of Legends, players pick their primary and secondary position they wan
 The dataframe AllTopTierMatches has the last 100 or so games for each player in the top 3 tiers. However, the raw dataset has two variables describing role: role and lane. Therefore, the position played for each game should be decided first.
 
 ```{r}
-# Function that takes role and lane and determines position based on documentation
+# Function that takes role and lane and determines position using simple mapping 
 determinePosition <- function(role, lane) {
+  # These three positions are based on lane
   ifelse(lane == "JUNGLE", "JUNGLE", 
   ifelse(lane == "MID", "MID", 
   ifelse (lane == "TOP", "TOP", 
+  # The two bottom lane positions are based on role
   ifelse(role == "DUO_CARRY", "BOTTOM", 
   ifelse(role == "DUO_SUPPORT", "SUPPORT", "UNDETERMINED")))))
 }
 
+# Updates AllTopTierMatches with just position
+AllTopTierMatches <-
+  AllTopTierMatches %>%
+  mutate(position = determinePosition(role, lane)) %>%
+  select(accountID, position)
+
 AllTopTierMatches %>%
-  mutate(position=determinePosition(role, lane)) %>%
   group_by(accountID, position) %>%
-  summarise(count = n())
+  summarise(games = n())
 ```
 
 
