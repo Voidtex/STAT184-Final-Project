@@ -227,7 +227,7 @@ Looking at the new dataset, while the mapping is not perfect as there are some g
 ### Determining main positions
 In general, players will stick to just one position (their "main" position) when climbing the ranks since each position has its own playstyle and it is easier to consistantly improve by sticking to one of them.  This section will determine a player's main position.
 ```{r}
-# Finds main positions excluding UNDETERMINED
+# Finds main positions
 TopTierPositions <-  
   TopTierPositions %>%
   filter(position != "UNDETERMINED" & games == max(games))
@@ -235,7 +235,35 @@ TopTierPositions <-
 TopTierPositions
 ```
 
+## Combining positions and rank
+Now that the main positions have been found, they have to be joined with the ranked data table. Internally, there are two IDs for each player, summonerID and accountID. While they refer to the same player, they have different values. Therefore, to join the tables, AllTopTierIDs is used to link summonerID and accountID
 
+```{r}
+# Remove duplicate rows from data
+AllTopTierIDs <-
+  AllTopTierIDs %>%
+  distinct()
 
+# Join the 3 tables
+TopRanksPositions <-
+  AllRanks %>%
+  inner_join(AllTopTierIDs, by="summonerID") %>%
+  inner_join(TopTierPositions, by="accountID") %>%
+  # Keep only needed variables
+  select(tier, wins, losses, position)
+
+TopRanksPositions
+```
+Now we can analyse position by rank
+
+```{r fig.width=10}
+TopRanksPositions %>%
+  group_by(tier, position) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x=position, y=count)) +
+  geom_col() +
+  facet_wrap(tier~.)
+```
+From this graph, we can see that MID is the most popular role in Challenger, while SUPPORT is the most popular in Grandmaster, and JUNGLE and MID about equally popular in Master tier.
 
 
