@@ -192,7 +192,7 @@ In this graph, the line is the win rate of the tier while the points are win rat
 In general, a player's mean win rate increases as they move up tiers. Within a tier, division I has the highest mean win rate with the rest of the mean win rates generally decreasing with division. As tiers Master and above effectively are only one tier, the division mean win rate is the mean win rate of the tier.
 
 ## Analysis of role
-In League of Legends, players pick their primary and secondary position they want to play before queueing to find a game. There are 5 positions: Top, Jungle, Mid, Bottom, and Support. In general, players will stick to a certain position when climbing the ranks since it is easier to have one consistant playstyle. This section will look at positions for Master, Grandmaster, and Challenger tiers since that is the only data available.
+In League of Legends, players pick their primary and secondary position they want to play before queueing to find a game. There are 5 positions: Top, Jungle, Mid, Bottom, and Support. This section will look at positions for Master, Grandmaster, and Challenger tiers since that is the only data available.
 
 ### Determining position
 The dataframe AllTopTierMatches has the last 100 or so games for each player in the top 3 tiers. However, the raw dataset has two variables describing role: role and lane. Therefore, the position played for each game should be decided first.
@@ -210,15 +210,32 @@ determinePosition <- function(role, lane) {
 }
 
 # Updates AllTopTierMatches with just position
-AllTopTierMatches <-
+TopTierPositions <-
   AllTopTierMatches %>%
   mutate(position = determinePosition(role, lane)) %>%
   select(accountID, position)
 
-AllTopTierMatches %>%
+TopTierPositions <-
+  TopTierPositions %>%
   group_by(accountID, position) %>%
   summarise(games = n())
+
+TopTierPositions
 ```
+Looking at the new dataset, while the mapping is not perfect as there are some games where position cannot be determined, the vast majority of positions have been sufficiently determined.
+
+### Determining main positions
+In general, players will stick to just one position (their "main" position) when climbing the ranks since each position has its own playstyle and it is easier to consistantly improve by sticking to one of them.  This section will determine a player's main position.
+```{r}
+# Finds main positions excluding UNDETERMINED
+TopTierPositions <-  
+  TopTierPositions %>%
+  filter(position != "UNDETERMINED" & games == max(games))
+
+TopTierPositions
+```
+
+
 
 
 
