@@ -256,14 +256,28 @@ TopRanksPositions
 ```
 Now we can analyse position by rank
 
+Since Challenger has the lowest number of players of the three tiers and Grandmaster the highest number by design, it would be easier to compare role distribution by percentage of players than raw counts.
 ```{r fig.width=10}
-TopRanksPositions %>%
+PositionPercent <-
+  TopRanksPositions %>%
   group_by(tier, position) %>%
   summarise(count = n()) %>%
-  ggplot(aes(x=position, y=count)) +
-  geom_col() +
-  facet_wrap(tier~.)
+  # Spreads so all positions are in one case per tier
+  spread(key=position, value=count) %>%
+  # Finds percentage of each position for each tier
+  mutate(total = sum(BOTTOM, JUNGLE, MID, SUPPORT, TOP),
+         BOTTOM = BOTTOM / total,
+         JUNGLE = JUNGLE / total,
+         MID = MID / total,
+         SUPPORT = SUPPORT / total,
+         TOP = TOP / total) %>%
+  # Gathers positions to original format for ease of using ggplots
+  gather(key=position, value=percent, BOTTOM, JUNGLE, MID, SUPPORT, TOP)
+
+PositionPercent %>%
+  ggplot(aes(x=position, y=percent)) +
+  geom_col(aes(fill=tier), position="dodge")
 ```
-From this graph, we can see that MID is the most popular role in Challenger, while SUPPORT is the most popular in Grandmaster, and JUNGLE and MID about equally popular in Master tier.
+From this graph, we can see that MID is the most popular role in Challenger, while SUPPORT is the most popular in Grandmaster, and JUNGLE and MID about equally popular in Master tier. We can also see that a higher percentage of players in Challenger play BOTTOM, JUNGLE, or MID than in Grandmaster or Master tier but as a result have the lowest percentage of SUPPORT and TOP players compared to the other tiers. Grandmaster and Master players' roles are about equally distributed compared to Challenger players, with most roles between 17.5% and 22.5%.
 
 
