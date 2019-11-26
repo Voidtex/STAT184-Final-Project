@@ -55,9 +55,9 @@ names(MasterMatches) <- c("accountID", "role", "lane")
 ```
 
 ## Introduction to League of Legends Ranking System
-In League of Legends, one of the main modes is the 5v5 ranked system, with players being matched with other players to make teams of 5 to play against other teams in the same server region. There are 2 such ranked systems: Solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either by himself or group up with one other person in a similar skill range before being matched with a team. Flex queue on the other hand allows players to play by themselves or group up to create teams of sizes 2, 3, or 5 with other players of similar skill level before being matched with a team. The focus of this analysis will be on north american (NA) solo queue players.
+In League of Legends, one of the main modes is 5v5 ranked, with players being matched with other players to make teams of 5 to play against other teams in the same server region. There are 2 such ranked systems: solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either by himself or group up with one other person in a similar skill range before being matched with a team. Flex queue on the other hand allows players to play by themselves or group up to create teams of sizes 2, 3, or 5 with other players of a similar skill level before being matched with a team. The focus of this analysis will be on north american (NA) solo queue players.
 
-As players win or lose games, they gain points in which they use to go up or down in the ranks. The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes. It should also be noted that those 3 tiers are designed with a cap that limits the number of players allowed to be in it at any time.
+The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes. It should also be noted that those 3 tiers are designed with a cap that limits the number of players allowed to be in each of them at any time.
 
 ## Research question and initial analysis
 Because each tier represents a skill level and requires many games to climb the ranked ladder, I want to see the distribution of players, how the number of games played increase as players move towards the top, as well as how their win rates compare. In addition, I want to compare some basic stats of the 3 top tiers and see which role is the most common among those players and compare win rates and games played between roles.
@@ -101,7 +101,7 @@ AllRanks <-
   AllRanks %>%
   filter(summonerID != "")
 
-# Setting tiers as a factor so sorting will be in order or rank and not alphabetical
+# Setting tiers as a factor so sorting will be in order of rank and not alphabetical
 tiers <- c("CHALLENGER", "GRANDMASTER", "MASTER", "DIAMOND", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON")
 AllRanks <- 
   AllRanks %>%
@@ -154,7 +154,6 @@ GameData <-
   mutate(totalGames=wins+losses, winRate=wins/totalGames) %>%
   select(tier, division, wins, losses, totalGames, winRate)
 
-
 GameData %>%
   group_by(tier, division) %>%
   summarise(meanGames=mean(totalGames)) %>%
@@ -173,7 +172,7 @@ GameData %>%
   ggplot(aes(x=tier, y=totalGames)) +
   geom_boxplot()
 ```
-From these boxplots, we can see that the average total games played gets smaller we go down the tiers. However, the total games played by a single player is highest in the Gold tier.
+From these boxplots, we can see that the average total games played gets smaller we go down the tiers. However, the total games played by each individual player can range from the low 100s to about 4500.
 
 ```{r fig.width=10}
 MeanWinRate <- 
@@ -186,10 +185,11 @@ GameData %>%
   summarise(meanWR=mean(winRate)) %>%
   ggplot(aes(x=tier, y=meanWR)) +
   geom_point(aes(color=division)) +
-  geom_line(data=MeanWinRate, aes(x=tier, y=meanWR, group=1))
+  geom_line(data=MeanWinRate, aes(x=tier, y=meanWR, group=1), color="red") +
+  geom_smooth(data=MeanWinRate, se=FALSE, aes(x=tier, y=meanWR, group=1), color="black")
 ```
-In this graph, the line is the win rate of the tier while the points are win rates of each division within a tier.
-In general, a player's mean win rate increases as they move up tiers. Within a tier, division I has the highest mean win rate with the rest of the mean win rates generally decreasing with division. As tiers Master and above effectively are only one tier, the division mean win rate is the mean win rate of the tier.
+In this graph, the red line is the win rate of the tier, the black line is a smoother of the tier win rate, and the points are win rates of each division within a tier.
+In general, a player's mean win rate increases as they move up tiers. Within a tier, division I has the highest mean win rate with the rest of the mean win rates generally decreasing with division. As tiers Master and above effectively are only one division, the division mean win rate is the mean win rate of the tier.
 
 ## Analysis of role
 In League of Legends, players pick their primary and secondary position they want to play before queueing to find a game. There are 5 positions: Top, Jungle, Mid, Bottom, and Support. This section will look at positions for Master, Grandmaster, and Challenger tiers since that is the only data available.
@@ -225,7 +225,7 @@ TopTierPositions
 Looking at the new dataset, while the mapping is not perfect as there are some games where position cannot be determined, the vast majority of positions have been sufficiently determined.
 
 ### Determining main positions
-In general, players will stick to just one position (their "main" position) when climbing the ranks since each position has its own playstyle and it is easier to consistantly improve by sticking to one of them.  This section will determine a player's main position.
+In general, players will stick to just one position (their "main" position) when climbing the ranks since each position has its own playstyle and it is easier to consistantly improve by sticking to one of them.  This chunk will determine a player's main position.
 ```{r}
 # Finds main positions
 TopTierPositions <-  
@@ -235,7 +235,7 @@ TopTierPositions <-
 TopTierPositions
 ```
 
-## Combining positions and rank
+### Combining positions and rank
 Now that the main positions have been found, they have to be joined with the ranked data table. Internally, there are two IDs for each player, summonerID and accountID. While they refer to the same player, they have different values. Therefore, to join the tables, AllTopTierIDs is used to link summonerID and accountID
 
 ```{r}
@@ -254,9 +254,10 @@ TopRanksPositions <-
 
 TopRanksPositions
 ```
-Now we can analyse position by rank
+Now we can analyze position by rank
 
-Since Challenger has the lowest number of players of the three tiers and Grandmaster the highest number by design, it would be easier to compare role distribution by percentage of players than raw counts.
+### Position distribution by tier
+Since Challenger has the lowest number of players of the three tiers and Grandmaster the highest number by design, it will be easier to compare role distribution by percentage of players for each position than raw counts.
 ```{r fig.width=10}
 PositionPercent <-
   TopRanksPositions %>%
@@ -278,6 +279,33 @@ PositionPercent %>%
   ggplot(aes(x=position, y=percent)) +
   geom_col(aes(fill=tier), position="dodge")
 ```
-From this graph, we can see that MID is the most popular role in Challenger, while SUPPORT is the most popular in Grandmaster, and JUNGLE and MID about equally popular in Master tier. We can also see that a higher percentage of players in Challenger play BOTTOM, JUNGLE, or MID than in Grandmaster or Master tier but as a result have the lowest percentage of SUPPORT and TOP players compared to the other tiers. Grandmaster and Master players' roles are about equally distributed compared to Challenger players, with most roles between 17.5% and 22.5%.
+From this graph, we can see that Mid is the most popular role in Challenger, while Support is the most popular in Grandmaster, and Jungle and Mid about equally popular in Master tier. We can also see that a higher percentage of players in Challenger play Bottom, Jungle, and Mid than in Grandmaster or Master tier but as a result have the lowest percentage of Support and Top players compared to the other tiers. Grandmaster and Master players' roles are about equally distributed compared to Challenger players, with most roles between 17.5% and 22.5%.
 
+### Total games played across positions
+```{r}
+PositionGameData <-
+  TopRanksPositions %>%
+  mutate(totalGames=wins+losses,
+         winRate=wins/totalGames) 
 
+PositionGameData %>%
+  ggplot(aes(x=position, y=totalGames)) +
+  geom_violin()
+```
+From these violin plots, we can see that most players in Master tier and above will play about 400 to 500 games in each position. The player with the highest number of games played is a support main.
+
+### Win rate across positions
+```{r}
+PositionMeanWR <-
+  PositionGameData %>%
+  group_by(position) %>%
+  summarise(meanWR=mean(winRate))
+
+PositionGameData %>% 
+  group_by(tier, position) %>%
+  summarise(meanWR=mean(winRate)) %>%
+  ggplot(aes(x=position, y=meanWR)) +
+  geom_point(aes(color=tier)) +
+  geom_line(data=PositionMeanWR, aes(x=position, y=meanWR, group=1))
+```
+In this plot, the points are mean win rates colored based on each tier and the line is the mean win rate across all tiers. We can see as a whole, Bottom and Jungle players have the highest mean win rates, with Mid having the lowest. However, looking at win rates across tiers, Challenger players raise the position mean significantly for Bottom and Jungle.
