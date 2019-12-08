@@ -3,6 +3,13 @@ title: League of Legends Ranked Analysis
 author: Perry Tsang
 output: html_notebook
 ---
+## Introduction to League of Legends Ranking System
+In League of Legends, one of the main modes is 5v5 ranked, with players being matched with other players to make teams of 5 to play against other teams in the same server region. There are 2 such ranked systems: solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either by himself or group up with one other person in a similar skill range before being matched with a team. Flex queue on the other hand allows players to play by themselves or group up to create teams of sizes 2, 3, or 5 with other players of a similar skill level before being matched with a team. The focus of this analysis will be on north american (NA) solo queue players.
+
+The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes. It should also be noted that those 3 tiers are designed with a cap that limits the number of players allowed to be in each of them at any time.
+
+## Research question and initial analysis
+Because each tier represents a skill level and requires many games to climb the ranked ladder, I want to see the distribution of players, how the number of games played increase as players move towards the top, as well as how their win rates compare. In addition, I want to compare some basic stats of the 3 top tiers and see which role is the most common among those players and compare win rates and games played between roles.
 
 ## Front matter
 ### Clearing environment and loading packages
@@ -53,14 +60,6 @@ names(ChallengerMatches) <- c("accountID", "role", "lane")
 names(GrandmasterMatches) <- c("accountID", "role", "lane")
 names(MasterMatches) <- c("accountID", "role", "lane")
 ```
-
-## Introduction to League of Legends Ranking System
-In League of Legends, one of the main modes is 5v5 ranked, with players being matched with other players to make teams of 5 to play against other teams in the same server region. There are 2 such ranked systems: solo/duo queue and flex queue. Solo/duo (commonly referred to as just solo queue), as the name suggests, only allows a player to play either by himself or group up with one other person in a similar skill range before being matched with a team. Flex queue on the other hand allows players to play by themselves or group up to create teams of sizes 2, 3, or 5 with other players of a similar skill level before being matched with a team. The focus of this analysis will be on north american (NA) solo queue players.
-
-The ranks are split into 9 tiers; from highest to lowest: Challenger, Grandmaster, Master, Diamond, Platinum, Gold, Silver, Bronze, and Iron. From Diamond down, there is a division system dividing each tier into 4 divisions; from highest to lowest: I, II, III, and IV. Players climb within their own tier and division until they reach division I. If they manage to win at the top of division I, they will move to division IV of the next tier. The exception to this rule is moving from Diamond I to Master and all tiers Master and above. Master, Grandmaster, and Challenger do not have any divisions nor do they use the point system the other tiers use to move up. Instead, they use a time based system that refreshes every day, automatically moving players in and out as their performance changes. It should also be noted that those 3 tiers are designed with a cap that limits the number of players allowed to be in each of them at any time.
-
-## Research question and initial analysis
-Because each tier represents a skill level and requires many games to climb the ranked ladder, I want to see the distribution of players, how the number of games played increase as players move towards the top, as well as how their win rates compare. In addition, I want to compare some basic stats of the 3 top tiers and see which role is the most common among those players and compare win rates and games played between roles.
 
 ## Initial analysis of raw data
 ```{r}
@@ -257,7 +256,7 @@ TopRanksPositions
 Now we can analyze position by rank
 
 ### Position distribution by tier
-Since Challenger has the lowest number of players of the three tiers and Grandmaster the highest number by design, it will be easier to compare role distribution by percentage of players for each position than raw counts.
+Since Challenger has the lowest number of players of the three tiers and Master the highest number by design, it will be easier to compare role distribution by percentage of players for each position than raw counts.
 ```{r fig.width=10}
 PositionPercent <-
   TopRanksPositions %>%
@@ -279,7 +278,7 @@ PositionPercent %>%
   ggplot(aes(x=position, y=percent)) +
   geom_col(aes(fill=tier), position="dodge")
 ```
-From this graph, we can see that Mid is the most popular role in Challenger, while Support is the most popular in Grandmaster, and Jungle and Mid about equally popular in Master tier. We can also see that a higher percentage of players in Challenger play Bottom, Jungle, and Mid than in Grandmaster or Master tier but as a result have the lowest percentage of Support and Top players compared to the other tiers. Grandmaster and Master players' roles are about equally distributed compared to Challenger players, with most roles between 17.5% and 22.5%.
+From this graph, we can see that Mid is the most popular role in Challenger, Support is the most popular in Grandmaster, and Jungle and Mid about equally the most popular in Master tier. We can also see that a higher percentage of players in Challenger play Bottom, Jungle, and Mid than in Grandmaster or Master tier but as a result have the lowest percentage of Support and Top players compared to the other tiers. Grandmaster and Master players' roles are about equally distributed compared to Challenger players, with most roles between 17.5% and 22.5%.
 
 ### Total games played across positions
 ```{r}
@@ -308,4 +307,7 @@ PositionGameData %>%
   geom_point(aes(color=tier)) +
   geom_line(data=PositionMeanWR, aes(x=position, y=meanWR, group=1))
 ```
-In this plot, the points are mean win rates colored based on each tier and the line is the mean win rate across all tiers. We can see as a whole, Bottom and Jungle players have the highest mean win rates, with Mid having the lowest. However, looking at win rates across tiers, Challenger players raise the position mean significantly for Bottom and Jungle.
+In this plot, the points are mean win rates colored based on each tier and the line is the mean win rate across all tiers. We can see as a whole, Bottom and Jungle players have the highest mean win rates, with Mid having the lowest. However, looking at win rates across tiers, Challenger players raise the position mean significantly for Bottom and Jungle. We can also see that Challenger players have the highest mean win rates across all positions.
+
+## Conclusion
+From the graphs, we can see that players are distributed normally centered on Gold/Silver with the average number of games played and win rate increasing as players reach the higher ranks. In the top three highest tiers, Mid is the most popular role in Challenger, Support is the most popular in Grandmaster, and Jungle and Mid are the most in Master tier. Among all 5 positions, they all have about the same average number of games played but win rates. Finally, Challenger players have the highest average win rate among all positions and Bottom and Jungle are the positions with the highest mean win rate. 
